@@ -14,6 +14,8 @@ After you fully understand gatt, read the HID examples in [References](#Referenc
 * bluez5.x
 * python3.x
 
+check `/etc/bluetooth/main.conf` and set `ControllerMode` to `le`.
+
 ## References
 
 [MicroPythonBLEHID](https://github.com/Heerkog/MicroPythonBLEHID/blob/master/hid_services.py)

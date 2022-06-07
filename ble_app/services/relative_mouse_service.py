@@ -4,7 +4,7 @@ import dbus.mainloop.glib
 import dbus.service
 
 from gi.repository import GLib as GObject
-from gatt import Service, Characteristic, Descriptor
+from .gatt import Service, Characteristic, Descriptor
 
 BLUEZ_SERVICE_NAME = 'org.bluez'
 GATT_MANAGER_IFACE = 'org.bluez.GattManager1'

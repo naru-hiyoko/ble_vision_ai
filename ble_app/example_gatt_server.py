@@ -8,10 +8,10 @@ import dbus.service
 import time
 
 from gi.repository import GLib as GObject
-from heart_rate_service import HeartRateService
-from battery_service import BatteryService
-from device_info_service import DIS
-from test_service import TestService
+from services import HeartRateService
+from services import BatteryService
+from services import DIS
+from services import TestService
 from advertisement import TestAdvertisement
 from agent import Agent
 

@@ -2,6 +2,10 @@ import dbus
 import dbus.exceptions
 import dbus.mainloop.glib
 import dbus.service
+import threading
+import struct
+import cv2
+import mediapipe as mp
 
 from gi.repository import GLib as GObject
 from .gatt import Service, Characteristic, Descriptor
@@ -16,7 +20,7 @@ GATT_CHRC_IFACE =    'org.bluez.GattCharacteristic1'
 GATT_DESC_IFACE =    'org.bluez.GattDescriptor1'
 
 
-class AbsoluteMouseService(Service):
+class HandGestureMouseService(Service):
     """
     Fake HID Mouse that simulates a mouse controls behaviour.
 
@@ -61,9 +65,6 @@ class InputRepMapChrc(Characteristic):
 
     def ReadValue(self, options):
         print('HID Input Report Map Chrc called')
-        # https://gist.github.com/mbt28/406bdf15a248029c774085832c7c0c0c
-        # https://github.com/csash7/mbed-BLE-Mouse/issues/1
-        # https://github.com/xcarcelle/mbed-BLE-Mouse/commit/d39d37bcf9bde178a3a2f47167cd8301cd68140a
         hex_list = [
             # Report Description: describes what we communicate
             0x05, 0x01,                    # USAGE_PAGE (Generic Desktop)
@@ -86,10 +87,10 @@ class InputRepMapChrc(Characteristic):
             0x05, 0x01,                    #         Usage Page (Generic Desktop)
             0x09, 0x30,                    #         Usage (X)
             0x09, 0x31,                    #         Usage (Y)
-            0x16, 0x00, 0x00,              #         Logical Minimum (0)
-            0x26, 0x10, 0x27,              #         Logical Maximum (10,000)
+            0x16, 0x01, 0x80,              #         Logical Minimum (0)
+            0x26, 0xff, 0x7f,              #         Logical Maximum (10,000)
             0x66, 0x00, 0x00,              #         UNIT(None)
-            0x75, 0x10,                    #         Report Size (3)
+            0x75, 0x10,                    #         Report Size (10)
             0x95, 0x02,                    #         Report Count (2)
             0x81, 0x02,                    #         Input(Data, Variable, Relative); 3 position bytes (X,Y,Wheel)
             0xc0,                          #   END_COLLECTION
@@ -128,12 +129,26 @@ class RepChrc(Characteristic):
         self.add_descriptor(RepDescriptor(bus, 0, self))
         self.notifying = False
         # y, x, s
-        self.value = [dbus.Byte(0x00), dbus.Byte(0x10), dbus.Byte(0x00), dbus.Byte(0x00), dbus.Byte(0x00)]
+        self.value = [dbus.Byte(0x00), dbus.Byte(0x00), dbus.Byte(0x00), dbus.Byte(0x00), dbus.Byte(0x00)]
+        self.cap = cv2.VideoCapture(0)
+        mp_hands = mp.solutions.hands
+        self.hand_detector = mp_hands.Hands(model_complexity=0, max_num_hands=1,
+                                            min_detection_confidence=0.5, min_tracking_confidence=0.5)
         GObject.timeout_add(5000, self.notify_report)
 
     def notify_report(self):
         if not self.notifying:
             return True
+
+        # 0 ~ 127 normalized to 0 ~ 1
+        button = 3
+        self.value = [dbus.Byte(button), dbus.Byte(0x00), dbus.Byte(64), dbus.Byte(0), dbus.Byte(64)]
+
+        self.PropertiesChanged('org.bluez.GattCharacteristic1', {
+            'Value': self.value
+        }, [])
+
+        self.value = [dbus.Byte(0x00), dbus.Byte(0x00), dbus.Byte(64), dbus.Byte(0), dbus.Byte(64)]
 
         self.PropertiesChanged('org.bluez.GattCharacteristic1', {
             'Value': self.value

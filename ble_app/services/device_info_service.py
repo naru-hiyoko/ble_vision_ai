@@ -4,7 +4,7 @@ import dbus.mainloop.glib
 import dbus.service
 import struct
 
-from gatt import Service, Characteristic
+from .gatt import Service, Characteristic
 
 BLUEZ_SERVICE_NAME = 'org.bluez'
 GATT_MANAGER_IFACE = 'org.bluez.GattManager1'

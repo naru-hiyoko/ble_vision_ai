@@ -20,7 +20,7 @@ def string_pack(in_str):
     return struct.pack(str(len(in_str)) + 's', in_str.encode('UTF-8'))
 
 
-class DIS(Service):
+class DeviceInfoService(Service):
     """
     Device Information Service.
 

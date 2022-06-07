@@ -8,12 +8,12 @@ import dbus.service
 import time
 
 from gi.repository import GLib as GObject
-from services import HeartRateService
-from services import BatteryService
-from services import DeviceInfoService
-from services import TestService
-from advertisement import TestAdvertisement
-from agent import Agent
+from .services import HeartRateService
+from .services import BatteryService
+from .services import DeviceInfoService
+from .services import TestService
+from .advertisement import TestAdvertisement
+from .agent import Agent
 
 bus = None
 mainloop = None

@@ -5,7 +5,7 @@ import dbus.service
 
 from gi.repository import GLib as GObject
 from random import randint
-from errors import InvalidValueLengthException, FailedException
+from .errors import InvalidValueLengthException, FailedException
 from .gatt import Service, Characteristic
 
 BLUEZ_SERVICE_NAME = 'org.bluez'

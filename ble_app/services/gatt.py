@@ -3,7 +3,7 @@ import dbus.exceptions
 import dbus.mainloop.glib
 import dbus.service
 
-from errors import InvalidArgsException, NotSupportedException
+from .errors import InvalidArgsException, NotSupportedException
 
 
 BLUEZ_SERVICE_NAME = 'org.bluez'

@@ -5,7 +5,7 @@ import dbus.mainloop.glib
 import dbus.service
 
 from gi.repository import GLib as GObject
-from errors import NotPermittedException
+from .errors import NotPermittedException
 from .gatt import Service, Characteristic, Descriptor
 
 mainloop = None

@@ -124,15 +124,22 @@ class RepChrc(Characteristic):
         Characteristic.__init__(self, bus, index, self.REP_UUID, ['secure-read', 'notify'], service)
         self.add_descriptor(RepDescriptor(bus, 0, self))
         self.notifying = False
-        # w, y, x, s
-        self.value = [dbus.Byte(0x00), dbus.Byte(0x00), dbus.Byte(0x10), dbus.Byte(0x00)]
+        # s, x, y, w
+        self.value = [dbus.Byte(0x00), dbus.Byte(0x00), dbus.Byte(0x00), dbus.Byte(0x00)]
         GObject.timeout_add(5000, self.notify_report)
 
     def notify_report(self):
         if not self.notifying:
             return True
 
-        print('Sent')
+        # 1: left click, 2 middle, 3: right click
+        button = 1
+        self.value = [dbus.Byte(button), dbus.Byte(0x00), dbus.Byte(0x00), dbus.Byte(0x00)]
+        self.PropertiesChanged('org.bluez.GattCharacteristic1', {
+            'Value': self.value
+        }, [])
+
+        self.value = [dbus.Byte(0x00), dbus.Byte(0x00), dbus.Byte(0x00), dbus.Byte(0x00)]
         self.PropertiesChanged('org.bluez.GattCharacteristic1', {
             'Value': self.value
         }, [])

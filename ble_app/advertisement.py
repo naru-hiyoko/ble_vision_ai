@@ -106,13 +106,9 @@ class Advertisement(dbus.service.Object):
 class TestAdvertisement(Advertisement):
     def __init__(self, bus, index):
         Advertisement.__init__(self, bus, index, 'peripheral')
-        self.add_service_uuid('180A')  # DIS
         self.add_service_uuid('1812')  # HID Mouse Service
-        self.add_service_uuid('180F')  # Battery Service
-        # self.add_service_uuid('180D')  # Heart Rate Service
-        # self.add_service_uuid('12345678-1234-5678-1234-56789abcdef0')  # Vendor Specific Service
         self.add_manufacturer_data(0x0001, [0x00, 0x01, 0x02, 0x03])
         self.add_service_data('0001', [0x00, 0x01, 0x02, 0x03, 0x04])
-        self.add_local_name('AiBot Vision AI System (DEV)')
+        self.add_local_name('VisionAI')
         self.include_tx_power = True
         # self.add_data(0x26, [0x01, 0x01, 0x00])

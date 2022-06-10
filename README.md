@@ -1,16 +1,18 @@
-# DIY Peripherals on Bluez HID over GATT
+# DIY BLE Central on Bluez HID over GATT
 
 Nowadays, someone asked me to create app of hand gesture PC controls on bluetooth.
 I firstly look at [bluez dbus api](https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/),
 but I can't get what `advertisement`, `service`, `characterisitics`, `descriptors` means.
-[This post](https://punchthrough.com/creating-a-ble-peripheral-with-bluez/) clalify me these words and I decided to try modifying `test service` in [example-gatt-server](https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/test/example-gatt-client).
-However, to avoid struggle to use dbus-python we should be familiar with `bluetoothctl` beforehand.
-Once example codes work, you can try/see published services with GattBrowser([android](https://play.google.com/store/apps/details?id=com.renesas.ble.gattbrowser&hl=en&gl=US)/[ios](https://apps.apple.com/jp/app/gattbrowser/id1163057977))
+Fortunately [This post](https://punchthrough.com/creating-a-ble-peripheral-with-bluez/) clalified me these words and I decided to try modifying `test service` in [example-gatt-server](https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/test/example-gatt-client).
+On the other hand, we should be familiar with `bluetoothctl` beforehand to avoid struggle to use dbus-python api.
+To see gatt server works, you can use GattBrowser([android](https://play.google.com/store/apps/details?id=com.renesas.ble.gattbrowser&hl=en&gl=US)/[ios](https://apps.apple.com/jp/app/gattbrowser/id1163057977)) except for HID services.
+Specifically, ios won't let you get HID services directlly, it may be restricted by secutiry terms.
 
 After you fully understand gatt, read the HID examples in [References](#References)
 
 ## Pre-Requirements
 
+* Linux
 * bluez5.x
 * python3.x
 

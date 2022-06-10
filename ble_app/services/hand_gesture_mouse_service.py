@@ -4,6 +4,7 @@ import dbus.mainloop.glib
 import dbus.service
 import threading
 import struct
+import numpy as np
 import cv2
 import mediapipe as mp
 
@@ -98,7 +99,6 @@ class InputRepMapChrc(Characteristic):
         ]
 
         hex_string = ''.join(['{:02x}'.format(b) for b in hex_list])
-        print(hex_string)
         return dbus.Array(bytearray.fromhex(hex_string))
 
 
@@ -132,24 +132,63 @@ class RepChrc(Characteristic):
         self.value = [dbus.Byte(0x00), dbus.Byte(0x00), dbus.Byte(0x00), dbus.Byte(0x00), dbus.Byte(0x00)]
         self.cap = cv2.VideoCapture(0)
         mp_hands = mp.solutions.hands
-        self.hand_detector = mp_hands.Hands(model_complexity=0, max_num_hands=1,
-                                            min_detection_confidence=0.5, min_tracking_confidence=0.5)
-        GObject.timeout_add(5000, self.notify_report)
+        self.history = np.array([], dtype=np.uint8)
+        self.max_history_count = 60
+        self.hands_detector = mp_hands.Hands(model_complexity=0, max_num_hands=1,
+                                             min_detection_confidence=0.5, min_tracking_confidence=0.5)
+        GObject.timeout_add(50, self.notify_report)
 
     def notify_report(self):
         if not self.notifying:
             return True
 
-        # 0 ~ 127 normalized to 0 ~ 1
-        button = 3
-        self.value = [dbus.Byte(button), dbus.Byte(0x00), dbus.Byte(64), dbus.Byte(0), dbus.Byte(64)]
+        success, image = self.cap.read()
 
+        if not success:
+            print('Ignoring empty camera frame')
+            return True
+
+        image.flags.writeable = False
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        detection_result = self.hands_detector.process(image)
+
+        if not detection_result.multi_hand_landmarks:
+            self.history = np.array([], dtype=np.uint8)
+            return True
+
+        detection_hand = detection_result.multi_hand_landmarks[0]
+        landmark = detection_hand.landmark
+        button = 0
+        x = max(int(127 * (1.0 - landmark[8].x)), 0)
+        y = max(int(127 * landmark[8].y), 0)
+
+        dx, dy = landmark[4].x - landmark[8].x, landmark[4].y - landmark[8].y
+        self.history = np.append(self.history, 1 if dy < 0.1 else 0)[-self.max_history_count:]
+        grad = self.history[1:] - self.history[:-1]
+
+        if self.history.size == self.max_history_count:
+            state_on_at, state_off_at, on_off_count = 0, 0, 0
+            for i in range(grad.size):
+                if grad[i] == 1:
+                    state_on_at = i
+                    on_off_count += 1
+                elif grad[i] == -1:
+                    state_off_at = i
+                    on_off_count += 1
+
+                if (state_off_at - state_on_at < 10) and on_off_count == 2:
+                    button = 1
+                    self.history = np.array([], dtype=np.uint8)
+
+
+
+        # 0 ~ 127 normalized to 0 ~ 1
+        self.value = [dbus.Byte(button), dbus.Byte(0x00), dbus.Byte(x), dbus.Byte(0x00), dbus.Byte(y)]
         self.PropertiesChanged('org.bluez.GattCharacteristic1', {
             'Value': self.value
         }, [])
 
-        self.value = [dbus.Byte(0x00), dbus.Byte(0x00), dbus.Byte(64), dbus.Byte(0), dbus.Byte(64)]
-
+        self.value = [dbus.Byte(0x00), dbus.Byte(0x00), dbus.Byte(x), dbus.Byte(0), dbus.Byte(y)]
         self.PropertiesChanged('org.bluez.GattCharacteristic1', {
             'Value': self.value
         }, [])

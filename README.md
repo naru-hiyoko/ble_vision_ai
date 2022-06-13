@@ -10,6 +10,11 @@ Specifically, ios won't let you get HID services directlly, it may be restricted
 
 After you fully understand gatt, read the HID examples in [References](#References)
 
+* video
+
+[![](https://img.youtube.com/vi/LZKFgrFjOiY/0.jpg)](https://www.youtube.com/watch?v=LZKFgrFjOiY)
+
+
 ## Pre-Requirements
 
 * Linux

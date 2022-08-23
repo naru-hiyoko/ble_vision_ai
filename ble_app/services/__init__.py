@@ -5,3 +5,4 @@ from .test_service import TestService
 from .hand_gesture_mouse_service import HandGestureMouseService
 from .relative_mouse_service import RelativeMouseService
 from .absolute_mouse_service import AbsoluteMouseService
+from .multitap_service import MultitapService

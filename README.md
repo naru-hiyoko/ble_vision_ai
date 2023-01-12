@@ -21,11 +21,15 @@ After you fully understand gatt, read the HID examples in [References](#Referenc
 * bluez5.x
 * python3.x
 
-check `/etc/bluetooth/main.conf` and set `ControllerMode` to `le`.
+Please Check `/etc/bluetooth/main.conf` and set `ControllerMode` to `le`.
 
 ## References
 
-[Bluez HID Over GATT](https://gist.github.com/HeadHodge/2d3dc6dc2dce03cf82f61d8231e88144)
-[MicroPythonBLEHID](https://github.com/Heerkog/MicroPythonBLEHID/blob/master/hid_services.py)
-[Mouse move to absolute coordinates](https://github.com/csash7/mbed-BLE-Mouse/issues/1)
-[Capacitive Touch Screen Emulation](https://github.com/NicoHood/HID/issues/123)
+* [Bluez HID Over GATT](https://gist.github.com/HeadHodge/2d3dc6dc2dce03cf82f61d8231e88144)
+  * Base implementation in this repo derives from the page in gist.
+* [MicroPythonBLEHID](https://github.com/Heerkog/MicroPythonBLEHID/blob/master/hid_services.py)
+  * I used report description from this page for relative/absolute mouse simulation.
+* [Mouse move to absolute coordinates](https://github.com/csash7/mbed-BLE-Mouse/issues/1)
+  * I refered to the url for abosolute mouse simulation.
+* [Capacitive Touch Screen Emulation](https://github.com/NicoHood/HID/issues/123)
+  * I also tried touch screen emulation based on disscussion thread.

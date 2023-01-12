@@ -92,7 +92,7 @@ def main():
     adapter_props_interface = dbus.Interface(adapter_obj, 'org.freedesktop.DBus.Properties')
     adapter_props_interface.Set('org.bluez.Adapter1', 'Powered', dbus.Boolean(1))
     adapter_props_interface.Set('org.bluez.Adapter1', 'Discoverable', dbus.Boolean(1))
-    adapter_props_interface.Set('org.bluez.Adapter1', 'Alias', dbus.String('VisionAI'))
+    adapter_props_interface.Set('org.bluez.Adapter1', 'Alias', dbus.String('AIBot'))
 
     ad_manager = dbus.Interface(adapter_obj, 'org.bluez.LEAdvertisingManager1')
     test_advertisement = TestAdvertisement(bus, index=0)

@@ -1,3 +1,4 @@
+import subprocess
 import dbus
 import dbus.exceptions
 import dbus.mainloop.glib
@@ -45,23 +46,34 @@ class BatteryLevelCharacteristic(Characteristic):
 
         self.notifying = False
         self.battery_lvl = 100
-        GObject.timeout_add(5000, self.drain_battery)
+        GObject.timeout_add(5000, self.notify_battery_level)
 
     def notify_battery_level(self):
-        if not self.notifying:
-            return
-        self.PropertiesChanged(GATT_CHRC_IFACE,
-                               {'Value': [dbus.Byte(self.battery_lvl)]}, [])
+        proc = subprocess.run(
+            ['upower', '-i', '/org/freedesktop/UPower/devices/battery_BAT1'],
+            capture_output=True
+        )
 
-    def drain_battery(self):
-        if not self.notifying:
-            return True
-        if self.battery_lvl > 0:
-            self.battery_lvl -= 2
-            if self.battery_lvl < 0:
-                self.battery_lvl = 0
-        # print('Battery Level drained: ' + repr(self.battery_lvl))
-        self.notify_battery_level()
+        if proc.returncode == 0:
+            fields_list = [
+                [v.strip() for v in l.split(':')]
+                for l in proc.stdout.decode('utf-8').split('\n')
+            ]
+            # FIXME: Error occurs when a item length is not `2`.
+            fields_dict = {
+                item[0]: item[1] for item in fields_list if len(item) == 2
+            }
+            if 'percentage' in fields_dict:
+                self.battery_lvl = int(fields_dict['percentage'].replace('%', ''))
+            else:
+                self.battery_lvl = 100
+        else:
+            self.battery_lvl = 100
+
+        if self.notifying:
+            payload = {'Value': [dbus.Byte(self.battery_lvl)]}
+            self.PropertiesChanged(GATT_CHRC_IFACE, payload, [])
+
         return True
 
     def ReadValue(self, options):
@@ -70,7 +82,6 @@ class BatteryLevelCharacteristic(Characteristic):
 
     def StartNotify(self):
         if self.notifying:
-            print('Already notifying, nothing to do')
             return
 
         self.notifying = True
@@ -78,7 +89,6 @@ class BatteryLevelCharacteristic(Characteristic):
 
     def StopNotify(self):
         if not self.notifying:
-            print('Not notifying, nothing to do')
             return
 
         self.notifying = False
